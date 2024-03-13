@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fastscore Race Clock</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            background-color: black;
+        }
+		 #raceName {
+            color: #C0C0C0; /* Color of the race name */
+            font-size: 1em; /* Size of the race name */
+			font-style: italic;
+			margin-top: 25px;
+            margin-bottom: 10px; 
+        }
+		#producer {
+            color: #FFA500; /* Color of the race name */
+            font-size: 1em; /* Size of the race name */
+			font-style: italic;
+			margin-top: 10px;
+            margin-bottom: 100px; 
+        }
+        #stopwatch {
+            font-size: 8em;
+            text-align: center;
+			margin-top: 175px;
+            margin-bottom: 50px;
+            color: limegreen;
+        }
+        .button-container {
+            display: flex;
+            justify-content: center;
+        }
+        button {
+            font-size:.5em;
+            padding:2px 5px;
+            margin: 2px;
+            cursor: pointer;
+            background-color: gray;
+            color: limegreen;
+            border: thin;
+            border-radius: 2px;
+        }
+        button:hover {
+            background-color: darkgray;
+        }
+        #additionalTime {
+            font-size: .1em;
+            margin-bottom: 1px; 
+            padding: 1px;
+        }
+    </style>
+    <script>
+        let stopwatchInterval;
+
+        function startStopwatch() {
+            let additionalTime = document.getElementById("additionalTime").value;
+            fetch(`stopwatch.php?action=start&additional_time=${additionalTime}`)
+                .then(() => {
+                    if (!stopwatchInterval) {
+                        stopwatchInterval = setInterval(updateStopwatch, 1000);
+                    }
+                });
+        }
+
+        function stopStopwatch() {
+            fetch('stopwatch.php?action=stop')
+                .then(() => {
+                    clearInterval(stopwatchInterval);
+                    stopwatchInterval = null;
+                    updateStopwatch();
+                });
+        }
+
+        function resetStopwatch() {
+            fetch('stopwatch.php?action=reset')
+                .then(() => {
+                    clearInterval(stopwatchInterval);
+                    stopwatchInterval = null;
+                    updateStopwatch();
+                });
+        }
+
+        function updateStopwatch() {
+            fetch('stopwatch.php?action=time')
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById("stopwatch").innerText = data;
+                });
+        }
+    </script>
+</head>
+<body>
+    <div id="stopwatch">00:00:00</div>
+	 <h1 id="raceName">ICEMAN SERIES - NO. 3 - 15K - 10K - 5K</h1>
+	 <h1 id="producer">FASTSCORE RACE TIMING</h1>
+    <div class="button-container">
+        <button onclick="startStopwatch()">Start</button>
+        <button onclick="stopStopwatch()">Pause</button>
+        <button onclick="resetStopwatch()">Reset</button>
+    </div>
+	 <input type="number" id="additionalTime" placeholder="Additional time in seconds" />
+</body>
+</html>
